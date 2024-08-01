@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("test")
 public class UserControllerIT {
 
-    public static final String USER = "/goodbuy/user";
+    public static final String USER = "/hackapay/user";
     @LocalServerPort
     private int port;
 
@@ -93,7 +93,7 @@ public class UserControllerIT {
         }
         @Test
         void devePermitirBuscarUserPorLogin() {
-            var login = "anderson.wagner";
+            var login = "anderson.wagner@gmail.com";
             given()
                     //.header(HttpHeaders.AUTHORIZATION, UserHelper.getToken())
                     .contentType(MediaType.APPLICATION_JSON_VALUE)

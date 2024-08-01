@@ -162,7 +162,7 @@ class UserControllerTest {
         void devePermitirAlterarUser() throws Exception {
             // Arrange
             var user = UserHelper.getUser(true);
-            when(userService.update(user.getId(), user)).thenAnswer(r -> r.getArgument(1) );
+            when(userService.update(user.getId(), user)).thenReturn(user);
             // Act
             mockMvc.perform(put("/user/{id}", user.getId())
                             .contentType(MediaType.APPLICATION_JSON)

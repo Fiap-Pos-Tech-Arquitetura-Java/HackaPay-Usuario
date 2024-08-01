@@ -60,7 +60,10 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Não é possível alterar o id de um user.");
         }
         if (userParam.getLogin() != null && !user.getLogin().equals(userParam.getLogin())) {
-            throw new IllegalArgumentException("Não é possível alterar o login de um user.");
+            if (userRepository.findByLogin(userParam.getLogin()).isPresent()) {
+                throw new IllegalArgumentException("Já existe um user cadastrado com esse login.");
+            }
+            user.setLogin(userParam.getLogin());
         }
         if (StringUtils.isNotEmpty(userParam.getPassword())) {
             user.setPassword(getEncryptedPassword(user.getPassword()));

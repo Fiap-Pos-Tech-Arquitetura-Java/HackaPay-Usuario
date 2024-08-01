@@ -88,7 +88,6 @@ public class UserController {
     }
 
     @Operation(summary = "remove um user por seu id")
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable UUID id) {
         try {

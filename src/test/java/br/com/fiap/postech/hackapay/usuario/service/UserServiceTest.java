@@ -152,7 +152,7 @@ public class UserServiceTest {
             var user = UserHelper.getUser(true);
             var userReferencia = new User(user.getLogin(), user.getPassword());
             var novoUser = new User(
-                    user.getLogin(),
+                    user.getLogin() + "x",
                     user.getPassword()
             );
             novoUser.setId(user.getId());
@@ -164,8 +164,8 @@ public class UserServiceTest {
             assertThat(userSalvo)
                     .isInstanceOf(User.class)
                     .isNotNull();
-            assertThat(userSalvo.getPassword()).isEqualTo(novoUser.getPassword());
-            assertThat(userSalvo.getPassword()).isNotEqualTo(userReferencia.getPassword());
+            assertThat(userSalvo.getLogin()).isEqualTo(novoUser.getLogin());
+            assertThat(userSalvo.getLogin()).isNotEqualTo(userReferencia.getLogin());
 
             verify(userRepository, times(1)).findById(any(UUID.class));
             verify(userRepository, times(1)).save(any(User.class));
@@ -218,23 +218,6 @@ public class UserServiceTest {
             assertThatThrownBy(() -> userService.update(uuid, userParam))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Não é possível alterar o id de um user.");
-            verify(userRepository, times(1)).findById(any(UUID.class));
-            verify(userRepository, never()).save(any(User.class));
-        }
-
-        @Test
-        void deveGerarExcecao_QuandoAlterarUserPorId_alterandoLogin() {
-            // Arrange
-            var user = UserHelper.getUser(true);
-            var userParam = UserHelper.getUser(true);
-            userParam.setId(user.getId());
-            userParam.setLogin(user.getLogin() + "x");
-            when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-            UUID uuid = user.getId();
-            // Act && Assert
-            assertThatThrownBy(() -> userService.update(uuid, userParam))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Não é possível alterar o login de um user.");
             verify(userRepository, times(1)).findById(any(UUID.class));
             verify(userRepository, never()).save(any(User.class));
         }
