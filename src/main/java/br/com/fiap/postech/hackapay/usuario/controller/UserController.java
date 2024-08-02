@@ -99,9 +99,13 @@ public class UserController {
     }
 
     @Operation(summary = "realiza o login do user")
-    @PostMapping("/login")
-    public ResponseEntity<Token> login(@Valid @RequestBody User user) throws Exception {
-        Token token = userService.login(user);
-        return new ResponseEntity<>(token, HttpStatus.CREATED);
+    @PostMapping("/autenticacao")
+    public ResponseEntity<?> login(@Valid @RequestBody User user) throws Exception {
+        try {
+            Token token = userService.login(user);
+            return new ResponseEntity<>(token, HttpStatus.CREATED);
+        } catch (Exception exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
     }
 }

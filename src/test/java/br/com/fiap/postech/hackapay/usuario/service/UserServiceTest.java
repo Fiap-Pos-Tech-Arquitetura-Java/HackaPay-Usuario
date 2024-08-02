@@ -4,7 +4,6 @@ import br.com.fiap.postech.hackapay.security.JwtService;
 import br.com.fiap.postech.hackapay.usuario.entity.User;
 import br.com.fiap.postech.hackapay.usuario.helper.UserHelper;
 import br.com.fiap.postech.hackapay.usuario.repository.UserRepository;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -270,7 +269,7 @@ public class UserServiceTest {
             var tokenObtido = userService.login(userLogin);
             // Assert
             assertThat(tokenObtido).isNotNull();
-            assertThat(tokenObtido.accessToken()).isNotNull();
+            assertThat(tokenObtido.token()).isNotNull();
             assertThat(tokenObtido.erro()).isNull();
             verify(userRepository, times(1)).findByLogin(anyString());
             verify(jwtService, times(1)).generateToken(any(br.com.fiap.postech.hackapay.security.User.class));
