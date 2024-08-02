@@ -242,7 +242,7 @@ class UserControllerTest {
             when(userService.login(any(User.class))).thenReturn(token);
             // Act
             mockMvc.perform(
-                            post(USER + "/login").contentType(MediaType.APPLICATION_JSON)
+                            post(USER + "/autenticacao").contentType(MediaType.APPLICATION_JSON)
                                     .content(asJsonString(user)))
                     .andExpect(status().isCreated());
             // Assert
