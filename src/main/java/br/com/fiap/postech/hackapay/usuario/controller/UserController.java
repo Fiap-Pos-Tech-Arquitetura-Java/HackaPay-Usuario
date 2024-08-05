@@ -1,8 +1,6 @@
 package br.com.fiap.postech.hackapay.usuario.controller;
 
-import br.com.fiap.postech.hackapay.security.SecurityHelper;
 import br.com.fiap.postech.hackapay.usuario.entity.User;
-import br.com.fiap.postech.hackapay.usuario.security.Token;
 import br.com.fiap.postech.hackapay.usuario.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -19,15 +17,13 @@ import java.util.UUID;
 
 @RestController
 @Service
-@RequestMapping("/user")
+@RequestMapping("/usuario")
 public class UserController {
     private final UserService userService;
-    private final SecurityHelper securityHelper;
 
     @Autowired
-    public UserController(UserService userService, SecurityHelper securityHelper) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.securityHelper = securityHelper;
     }
 
     @Operation(summary = "registra um user")
@@ -95,17 +91,6 @@ public class UserController {
         } catch (IllegalArgumentException
                 exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @Operation(summary = "realiza o login do user")
-    @PostMapping("/autenticacao")
-    public ResponseEntity<?> login(@Valid @RequestBody User user) throws Exception {
-        try {
-            Token token = userService.login(user);
-            return new ResponseEntity<>(token, HttpStatus.CREATED);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.UNAUTHORIZED);
         }
     }
 }

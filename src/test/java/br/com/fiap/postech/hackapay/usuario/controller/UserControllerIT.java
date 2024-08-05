@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("test")
 public class UserControllerIT {
 
-    public static final String USER = "/hackapay/user";
+    public static final String USER = "/api/usuario";
     @LocalServerPort
     private int port;
 

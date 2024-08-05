@@ -1,9 +1,7 @@
 package br.com.fiap.postech.hackapay.usuario.controller;
 
-import br.com.fiap.postech.hackapay.security.SecurityHelper;
 import br.com.fiap.postech.hackapay.usuario.entity.User;
 import br.com.fiap.postech.hackapay.usuario.helper.UserHelper;
-import br.com.fiap.postech.hackapay.usuario.security.Token;
 import br.com.fiap.postech.hackapay.usuario.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -29,12 +27,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class UserControllerTest {
-    public static final String USER = "/user";
+    public static final String USER = "/usuario";
     private MockMvc mockMvc;
     @Mock
     private UserService userService;
-    @Mock
-    private SecurityHelper securityHelper;
 
     private AutoCloseable mock;
 
@@ -42,7 +38,7 @@ class UserControllerTest {
     void setUp() {
 
         mock = MockitoAnnotations.openMocks(this);
-        UserController userController = new UserController(userService, securityHelper);
+        UserController userController = new UserController(userService);
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
 
@@ -78,7 +74,7 @@ class UserControllerTest {
             when(userService.save(any(User.class))).thenAnswer(r -> r.getArgument(0));
             // Act
             mockMvc.perform(
-                            post("/user").contentType(MediaType.APPLICATION_XML)
+                            post(USER).contentType(MediaType.APPLICATION_XML)
                                     .content(asJsonString(user)))
                     .andExpect(status().isUnsupportedMediaType());
             // Assert
@@ -93,7 +89,7 @@ class UserControllerTest {
             var user = UserHelper.getUser(true);
             when(userService.findById(any(UUID.class))).thenReturn(user);
             // Act
-            mockMvc.perform(get("/user/{id}", user.getId().toString()))
+            mockMvc.perform(get(USER + "/{id}", user.getId().toString()))
                     .andExpect(status().isOk());
             // Assert
             verify(userService, times(1)).findById(any(UUID.class));
@@ -104,7 +100,7 @@ class UserControllerTest {
             var user = UserHelper.getUser(true);
             when(userService.findByLogin(anyString())).thenReturn(user);
             // Act
-            mockMvc.perform(get("/user/findByLogin/{login}", user.getLogin()))
+            mockMvc.perform(get(USER + "/findByLogin/{login}", user.getLogin()))
                     .andExpect(status().isOk());
             // Assert
             verify(userService, times(1)).findByLogin(anyString());
@@ -115,7 +111,7 @@ class UserControllerTest {
             var user = UserHelper.getUser(true);
             when(userService.findById(user.getId())).thenThrow(IllegalArgumentException.class);
             // Act
-            mockMvc.perform(get("/user/{id}", user.getId().toString()))
+            mockMvc.perform(get(USER + "/{id}", user.getId().toString()))
                     .andExpect(status().isBadRequest());
             // Assert
             verify(userService, times(1)).findById(user.getId());
@@ -140,7 +136,7 @@ class UserControllerTest {
             ).thenReturn(users);
             // Act
             mockMvc.perform(
-                            get("/user")
+                            get(USER)
                                     .param("page", String.valueOf(page))
                                     .param("size", String.valueOf(size))
                                     .param("usuario", user.getLogin())
@@ -164,7 +160,7 @@ class UserControllerTest {
             var user = UserHelper.getUser(true);
             when(userService.update(user.getId(), user)).thenReturn(user);
             // Act
-            mockMvc.perform(put("/user/{id}", user.getId())
+            mockMvc.perform(put(USER + "/{id}", user.getId())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(asJsonString(user)))
                     .andExpect(status().isAccepted());
@@ -178,7 +174,7 @@ class UserControllerTest {
             var user = UserHelper.getUser(true);
             when(userService.update(user.getId(), user)).thenAnswer(r -> r.getArgument(1) );
             // Act
-            mockMvc.perform(put("/user/{id}", user.getId())
+            mockMvc.perform(put(USER + "/{id}", user.getId())
                             .contentType(MediaType.APPLICATION_XML)
                             .content(asJsonString(user)))
                     .andExpect(status().isUnsupportedMediaType());
@@ -192,7 +188,7 @@ class UserControllerTest {
             var userDTO = UserHelper.getUser(true);
             when(userService.update(userDTO.getId(), userDTO)).thenThrow(IllegalArgumentException.class);
             // Act
-            mockMvc.perform(put("/user/{id}", userDTO.getId())
+            mockMvc.perform(put(USER + "/{id}", userDTO.getId())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(asJsonString(userDTO)))
                     .andExpect(status().isBadRequest());
@@ -208,9 +204,8 @@ class UserControllerTest {
             // Arrange
             var user = UserHelper.getUser(true);
             doNothing().when(userService).delete(user.getId());
-            when(securityHelper.getLoggedUser()).thenReturn(user.getLogin());
             // Act
-            mockMvc.perform(delete("/user/{id}", user.getId()))
+            mockMvc.perform(delete(USER + "/{id}", user.getId()))
                     .andExpect(status().isNoContent());
             // Assert
             verify(userService, times(1)).delete(user.getId());
@@ -221,32 +216,13 @@ class UserControllerTest {
         void deveGerarExcecao_QuandoRemoverUserPorId_idNaoExiste() throws Exception {
             // Arrange
             var user = UserHelper.getUser(true);
-            when(securityHelper.getLoggedUser()).thenReturn(user.getLogin());
             doThrow(new IllegalArgumentException("User não encontrado com o ID: " + user.getId()))
                     .when(userService).delete(user.getId());
             // Act
-            mockMvc.perform(delete("/user/{id}", user.getId()))
+            mockMvc.perform(delete(USER + "/{id}", user.getId()))
                     .andExpect(status().isBadRequest());
             // Assert
             verify(userService, times(1)).delete(user.getId());
-        }
-    }
-
-    @Nested
-    class LoginUser {
-        @Test
-        void devePermitirLoginUser() throws Exception {
-            // Arrange
-            var user = UserHelper.getUser(true);
-            var token = new Token(UserHelper.getToken(user), null);
-            when(userService.login(any(User.class))).thenReturn(token);
-            // Act
-            mockMvc.perform(
-                            post(USER + "/autenticacao").contentType(MediaType.APPLICATION_JSON)
-                                    .content(asJsonString(user)))
-                    .andExpect(status().isCreated());
-            // Assert
-            verify(userService, times(1)).login(any(User.class));
         }
     }
 }
