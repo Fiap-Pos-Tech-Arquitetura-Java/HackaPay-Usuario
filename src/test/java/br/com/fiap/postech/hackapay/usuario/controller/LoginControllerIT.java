@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("test")
 public class LoginControllerIT {
 
-    public static final String AUTENTICACAO = "/autenticacao";
+    public static final String AUTENTICACAO = "/api/autenticacao";
     @LocalServerPort
     private int port;
 
@@ -40,5 +40,17 @@ public class LoginControllerIT {
     void setup() {
         RestAssured.port = port;
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+    }
+
+    @Test
+    void devePermitirBuscarUserPorLogin() {
+        User user = new User("anderson.wagner@gmail.com", "123456");
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE).body(user)
+                .when()
+                .post(AUTENTICACAO)
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .body(matchesJsonSchemaInClasspath("schemas/token.schema.json"));
     }
 }
