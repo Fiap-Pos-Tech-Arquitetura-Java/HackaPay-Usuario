@@ -1,11 +1,11 @@
 FROM ubuntu:latest AS build
 
-RUN apt-get update
-RUN apt-get install openjdk-17-jdk -y
+RUN sudo apt-get update
+RUN sudo apt-get install openjdk-17-jdk -y
 COPY . .
 
-RUN apt-get install maven -y
-RUN apt-get install -y git
+RUN sudo pt-get install maven -y
+RUN sudo apt-get install -y git
 
 RUN mkdir /hackapay-security
 RUN git clone https://github.com/Fiap-Pos-Tech-Arquitetura-Java/Hackapay-Security /hackapay-security
